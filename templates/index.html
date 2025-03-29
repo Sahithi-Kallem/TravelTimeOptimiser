@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Traffic Time Optimizer</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: url('/static/modern-tech-world-map.jpg') no-repeat center center fixed;
+            background-size: cover;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 500px;
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 28px;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        label {
+            color: #34495e;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        input[type="text"], input[type="date"], select {
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        input[type="text"]:focus, input[type="date"]:focus, select:focus {
+            border-color: #3498db;
+            outline: none;
+        }
+        input[type="submit"] {
+            background: #3498db;
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        input[type="submit"]:hover {
+            background: #2980b9;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background: #ecf0f1;
+            border-radius: 10px;
+            color: #2c3e50;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+        .result p {
+            margin: 5px 0;
+        }
+        .weather {
+            font-style: italic;
+            color: #7f8c8d;
+        }
+        .alert {
+            background: #f39c12;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 15px;
+            text-align: center;
+        }
+        .error {
+            background: #e74c3c;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 15px;
+            text-align: center;
+        }
+        a {
+            color: #3498db;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Traffic Time Optimizer</h1>
+        <form method="post">
+            <label for="source">From</label>
+            <input type="text" id="source" name="source" value="{{ source }}" placeholder="e.g., Vijaya Hospital, Nagaram" required>
+            
+            <label for="destination">To</label>
+            <input type="text" id="destination" name="destination" value="{{ dest }}" placeholder="e.g., Hitech City" required>
+            
+            <label for="arrival_date">Arrive Date</label>
+            <input type="date" id="arrival_date" name="arrival_date" value="{{ arrival_date }}" min="{{ min_date }}" required>
+            
+            <label for="arrival_time">Arrive Time (00:00-23:59)</label>
+            <input type="text" id="arrival_time" name="arrival_time" value="{{ arrival_time }}" placeholder="e.g., 23:00" pattern="([0-1][0-9]|2[0-3]):[0-5][0-9]" required>
+            
+            <label for="travel_mode">Travel By</label>
+            <select id="travel_mode" name="travel_mode" required>
+                <option value="car" {% if travel_mode == "car" %}selected{% endif %}>Car</option>
+                <option value="motorcycle" {% if travel_mode == "motorcycle" %}selected{% endif %}>Motorcycle</option>
+                <option value="bicycle" {% if travel_mode == "bicycle" %}selected{% endif %}>Bicycle</option>
+                <option value="pedestrian" {% if travel_mode == "pedestrian" %}selected{% endif %}>Walk</option>
+            </select>
+            
+            <input type="submit" value="Plan My Trip">
+        </form>
+        {% if arrival_time or error_message %}
+            <div class="result">
+                {% if preferred_start %}
+                    <p><strong>To arrive by {{ arrival_time }} on {{ display_date }}:</strong></p>
+                    <p>Leave {{ source }} at {{ preferred_start }} ({{ preferred_time|round(1) }} min, {{ preferred_distance|round(1) }} km via {{ travel_mode }})</p>
+                    {% if optimal_time %}
+                        <p><strong>Faster Option:</strong> Leave at {{ optimal_start }} ({{ optimal_time|round(1) }} min, {{ optimal_distance|round(1) }} km)</p>
+                    {% endif %}
+                    <p class="weather">Hyderabad Weather: {{ temp|round(1) }}°C, Precip: {{ precip|round(1) }} mm</p>
+                    {% if google_maps_url %}
+                        <p><a href="{{ google_maps_url }}" target="_blank">View Route on Google Maps</a></p>
+                    {% endif %}
+                    {% if alert %}
+                        <div class="alert">{{ alert }}</div>
+                    {% endif %}
+                {% endif %}
+                {% if error_message %}
+                    <div class="error">{{ error_message }}</div>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>
