@@ -20,10 +20,18 @@ git clone https://github.com/Sahithi-Kallem/TravelTimeOptimiser.git cd TravelTim
 2. Install dependencies:
 pip install -r requirements.txt
 
-3. Run the app:
+3. Set API keys:
+export TOMTOM_API_KEY=your_tomtom_key
+export WEATHERSTACK_API_KEY=your_weatherstack_key
+
+On Windows:
+set TOMTOM_API_KEY=your_tomtom_key
+set WEATHERSTACK_API_KEY=your_weatherstack_key
+
+4. Run the app:
 python app.py
 
-4. Open `http://127.0.0.1:5000/` in your browser.
+5. Open `http://127.0.0.1:5000/` in your browser.
 
 ## Dependencies
 - Flask: Web framework
