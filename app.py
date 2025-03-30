@@ -4,10 +4,11 @@ import numpy as np
 from datetime import datetime, timedelta
 import json
 from functools import lru_cache
+import os  # Add this for environment variables
 
 app = Flask(__name__)
-tomtom_key = "jA0UUDMLwBJy1KOJ2dtze7ITYaUIyn5i"
-weather_key = "1140a608e0d3bf1d893123558142d156"
+tomtom_key = os.getenv("TOMTOM_API_KEY")  # Get from env
+weather_key = os.getenv("WEATHERSTACK_API_KEY")  # Get from env
 
 @lru_cache(maxsize=128)
 def get_coordinates(address):
@@ -71,6 +72,10 @@ def optimize():
     default_date = min_date
     error_message = None
 
+    if not tomtom_key or not weather_key:
+        error_message = "API keys not set. Please configure TOMTOM_API_KEY and WEATHERSTACK_API_KEY environment variables."
+        return render_template("index.html", source="", dest="", arrival_time="", travel_mode="car", arrival_date=default_date, min_date=min_date, error_message=error_message)
+
     if request.method == "POST":
         source = request.form["source"]
         dest = request.form["destination"]
@@ -122,7 +127,7 @@ def optimize():
         durations = []
         distances = []
         arrival_times = []
-        print(f"Now: {current_hour:.4f}, Arrival: {arrival_hour:.4f}, Times: {times}")  # Debug
+        print(f"Now: {current_hour:.4f}, Arrival: {arrival_hour:.4f}, Times: {times}")
         for t in times:
             h, m = divmod(int(t * 60), 60)
             depart_dt = datetime.combine(base_date, datetime.min.time()) + timedelta(hours=h, minutes=m)
@@ -143,7 +148,7 @@ def optimize():
             durations.append(duration)
             distances.append(distance)
             arrival_times.append(t + duration / 60.0)
-        print(f"Arrival times: {arrival_times}")  # Debug
+        print(f"Arrival times: {arrival_times}")
 
         valid_starts = [(i, t) for i, t in enumerate(times) 
                         if arrival_times[i] <= arrival_hour + 1/60 and datetime.combine(base_date, datetime.min.time()) + timedelta(hours=t) >= now]
